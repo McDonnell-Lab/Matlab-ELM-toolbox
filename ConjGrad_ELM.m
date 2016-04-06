@@ -42,21 +42,21 @@ for Iteration = 1:MaxIts
     p_k = r_k + beta_k*p_k;
     
     MSE(Iteration) = mean(mean((Y'-Y_predicted).^2));
-    if Iteration>1 & MSE(Iteration-1) - MSE(Iteration) < 1e-15
+    if Iteration>1 && MSE(Iteration-1) - MSE(Iteration) < 1e-15
         disp(['MSE converged to 1e-6 after ' num2str(Iteration) ' iterations'])
         break
     end
     
     if ProgressFlag
         %performance evaluation
-        Iteration
+        disp(['Iteration: ' num2str(Iteration)])
         
-        [MaxVal,ClassificationID_train] = max(Y_predicted);%get output layer response and then classify it
+        [~,ClassificationID_train] = max(Y_predicted);%get output layer response and then classify it
         PercentCorrect_train = 100*(1-length(find(ClassificationID_train-1-labels'~=0))/k_train)
         
-        [MaxVal,ClassificationID_test] = max(W_outputs*A_test); %get classification
+        [~,ClassificationID_test] = max(W_outputs*A_test); %get classification
         PercentCorrect_test = 100*(1-length(find(ClassificationID_test-1-labels_test'~=0))/k_test)
         
-        MSE(Iteration)
+        disp(['MSE: ' num2str(MSE(Iteration))])
     end
 end

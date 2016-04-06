@@ -1,4 +1,4 @@
-function [W_outputs,P] = E_NLMS_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train,Delta,Runs)
+function [W_outputs] = E_NLMS_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train,Delta,Runs)
 
 %The normalised variation of the LMS algorithm, invented by Widrow.
 %See for example D. P. Mandic, S. Kanna and A. G. Constantinides,

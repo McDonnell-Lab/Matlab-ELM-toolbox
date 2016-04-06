@@ -1,4 +1,4 @@
-function [W_outputs] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag)
+function [W_outputs,Y_predicted,Y_predicted_test] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag)
 %
 % This function calculates an approximate incremental solution to the output weights.
 %
@@ -16,11 +16,9 @@ function [W_outputs] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnit
 % This code requires implicit inversion of matrices of size ModuleSize x ModuleSize
 % it also requires explicit multiplication of (ModuleSize x k_train)(k_train x ModuleSize) matrices
 
-W_outputs = [];
+W_outputs = zeros(NumClasses,M);
 Y_predicted = zeros(NumClasses,k_train);
-if ProgressFlag
-    Y_predicted_test = zeros(NumClasses,k_test);
-end
+Y_predicted_test = zeros(NumClasses,k_test);
 MSE_prev = mean(mean(Y.^2));
 for m = 1:floor(M/ModuleSize)
     
@@ -28,23 +26,24 @@ for m = 1:floor(M/ModuleSize)
     [A,A_test] = GetHiddenLayerActivations(W_input((m-1)*ModuleSize+1:m*ModuleSize,:),X,X_test,HiddenUnitType);
     Err = Y'-double(Y_predicted);
     W_outputs_m =  single((Err*A')/(A*A'+Lambda*eye(ModuleSize)));
-    W_outputs = [W_outputs W_outputs_m];
     Y_predicted = Y_predicted + W_outputs_m*A;
+    Y_predicted_test = Y_predicted_test + W_outputs_m*A_test;
+    
+    W_outputs(:,(m-1)*ModuleSize+1:m*ModuleSize) =  W_outputs_m;
     
     if ProgressFlag
         tic
-        m
         
         %evaluations
         MSE = mean(mean(Err.^2));
-        dMSE = MSE_prev-MSE
+        dMSE = MSE_prev-MSE;
+        disp(['Difference in MSE after iteration ' num2str(m) ': ' num2str(dMSE)])
         MSE_prev = MSE;
         
-        [MaxVal,ClassificationID_train] = max(Y_predicted); %get output layer response and then classify it
+        [~,ClassificationID_train] = max(Y_predicted); %get output layer response and then classify it
         PercentCorrect_train = 100*(1-length(find(ClassificationID_train-1-labels'~=0))/k_train) %calculate the error rate
         
-        Y_predicted_test = Y_predicted_test + W_outputs_m*A_test;
-        [MaxVal,ClassificationID_test] = max(Y_predicted_test); %get output layer response and then classify it
+        [~,ClassificationID_test] = max(Y_predicted_test); %get output layer response and then classify it
         PercentCorrect_test = 100*(1-length(find(ClassificationID_test-1-labels_test'~=0))/k_test)
         toc
     end

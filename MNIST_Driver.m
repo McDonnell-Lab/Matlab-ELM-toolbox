@@ -1,20 +1,20 @@
-clear all;tic
+clear all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %this is an example script that implements an ELM network to classify images
 %The main computation required is the calculation of output weights.
 %Several methods for doing this are provided.
-%1. The standard and generally fastest method is to solve linear equations using a Cholesky solver
-%2. The main deficiency in the standard method is its high memory burden
-%for large hidden layers. Three methods here can circumvent this: the
-%conjugate gradient method, the modular method, and the epsilon-NLMS method
-%3. The standard method also is not good for non-stationary data. The RLS
-%and epsilon-NLMS methods are better for non-stationary data.
-%4. The modular method offers several advantages: less memory intensive,
-%and also faster than the standard method for the same total number of
-%hidden units. However it loses some accuracy and generally a higher number of hidden units is
-%necessary to get close to the same performance.
+% 1. The standard and generally fastest method is to solve linear equations using a Cholesky solver
+% 2. The main deficiency in the standard method is its high memory burden
+%    for large hidden layers. Three methods here can circumvent this: the
+%    conjugate gradient method, the modular method, and the epsilon-NLMS method
+% 3. The standard method also is not good for non-stationary data. The RLS
+%    and epsilon-NLMS methods are better for non-stationary data.
+% 4. The modular method offers several advantages: less memory intensive,
+%    and also faster than the standard method for the same total number of
+%    hidden units. However it loses some accuracy and generally a higher number of hidden units is
+%    necessary to get close to the same performance.
 
 %Author: A/Prof Mark D. McDonnell, University of South Australia
 %Email: mark.mcdonnell@unisa.edu.au
@@ -65,8 +65,10 @@ W_input = GetInputLayerWeights(InputWeightFlags,L,ImageSize,X,Y,k_train,labels,N
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 3: get Hidden Layer Activations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[A,A_test] = GetHiddenLayerActivations(W_input,X,X_test,HiddenUnitType);
-
+if ~strcmp(LearningMethod,'Modular') %the modular method does not require all activations to be pre-stored
+    [A,A_test] = GetHiddenLayerActivations(W_input,X,X_test,HiddenUnitType);
+end
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 4: Compute the output weights
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,7 +99,8 @@ switch LearningMethod
         %Incrementally solve for the output weights using multiple batches of hidden units, i.e. modules.
         ModuleSize = 400;
         ProgressFlag =0;
-        W_outputs = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag);
+        Lambda = 1e-2;
+        [W_outputs,Y_predicted_train,Y_predicted_test] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag);
     case 'e-NLMS'
         %solve approximately using regularised normalised LMS algorithm, without requiring an M x M matrix
         BatchSize = 100; 
@@ -114,14 +117,18 @@ toc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 4: verify classification on the training set
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Y_predicted_train = W_outputs*A;
-[MaxVal,ClassificationID_train] = max(Y_predicted_train); %get output layer response and then classify it
+if ~strcmp(LearningMethod,'Modular')
+    Y_predicted_train = W_outputs*A;
+end
+[~,ClassificationID_train] = max(Y_predicted_train); %get output layer response and then classify it
 PercentCorrect_train = 100*(1-length(find(ClassificationID_train-1-labels'~=0))/k_train) %calculate the error rate
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 5: get classification on test data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Y_predicted_test = W_outputs*A_test;
-[MaxVal,ClassificationID_test] = max(Y_predicted_test); %get output layer response and then classify it
+if ~strcmp(LearningMethod,'Modular')
+    Y_predicted_test = W_outputs*A_test;
+end
+[~,ClassificationID_test] = max(Y_predicted_test); %get output layer response and then classify it
 PercentCorrect_test = 100*(1-length(find(ClassificationID_test-1-labels_test'~=0))/k_test)
 
