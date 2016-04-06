@@ -20,6 +20,7 @@ W_outputs = zeros(NumClasses,M);
 Y_predicted = zeros(NumClasses,k_train);
 Y_predicted_test = zeros(NumClasses,k_test);
 MSE_prev = mean(mean(Y.^2));
+tic
 for m = 1:floor(M/ModuleSize)
     
     %update
@@ -32,7 +33,6 @@ for m = 1:floor(M/ModuleSize)
     W_outputs(:,(m-1)*ModuleSize+1:m*ModuleSize) =  W_outputs_m;
     
     if ProgressFlag
-        tic
         
         %evaluations
         MSE = mean(mean(Err.^2));
@@ -47,5 +47,7 @@ for m = 1:floor(M/ModuleSize)
         PercentCorrect_test = 100*(1-length(find(ClassificationID_test-1-labels_test'~=0))/k_test)
         toc
     end
+    
+    
 end
 

@@ -67,11 +67,12 @@ switch Flags(2)
             while  Norm < eps
                 Inds = randperm(k_train,2);
                 X_Diff = single(X(1:L-1,Inds(1))-X(1:L-1,Inds(2)));
-                Wrow = (X_Diff-mean(X_Diff)).*Mask(i,:)'; %get masked C random weights
+                Wrow = X_Diff.*Mask(i,:)'; %get masked C random weights
+                Wrow = Wrow-mean(Wrow);
                 Norm  = sqrt(sum(Wrow.^2));
             end
             W_randoms(i,:) = Wrow/Norm;
-            biases(i) = 0.5*(single(X(1:L-1,Inds(1))+X(1:L-1,Inds(2))))'*Wrow/Norm;
+            biases(i) = 0.5*(single(X(1:L-1,Inds(1))+X(1:L-1,Inds(2))))'*Wrow/Norm; 
         end
         W_randoms = Scaling*W_randoms; %scale the weights (already normalised) 
     otherwise
