@@ -4,7 +4,17 @@ clear all;tic
 
 %this is an example script that implements an ELM network to classify images
 %The main computation required is the calculation of output weights.
-%Several methods for doijng this are provided.
+%Several methods for doing this are provided.
+%1. The standard and generally fastest method is to solve linear equations using a Cholesky solver
+%2. The main deficiency in the standard method is its high memory burden
+%for large hidden layers. Three methods here can circumvent this: the
+%conjugate gradient method, the modular method, and the epsilon-NLMS method
+%3. The standard method also is not good for non-stationary data. The RLS
+%and epsilon-NLMS methods are better for non-stationary data.
+%4. The modular method offers several advantages: less memory intensive,
+%and also faster than the standard method for the same total number of
+%hidden units. However it loses some accuracy and generally a higher number of hidden units is
+%necessary to get close to the same performance.
 
 %Author: A/Prof Mark D. McDonnell, University of South Australia
 %Email: mark.mcdonnell@unisa.edu.au
@@ -74,27 +84,22 @@ switch LearningMethod
         W_outputs = (A*Y)'/(A*A'+Lambda*eye(M));
     case 'ConjGrad'
         %The conjugate gradient method.
-        
         MaxIterations = 100;
         ProgressFlag = 0;
         Lambda = 1e-8; %ridge regression/weight decay regularisation parameter
         W_outputs = ConjGrad_ELM(A,A_test,NumClasses,k_train,k_test,Y,labels,labels_test,Lambda,M,MaxIterations,ProgressFlag);
     case 'RLS'
         %Iteratively solve for the output weights using multiple batches of training samples and the Recursive-Least-Squares equations   
-        
         BatchSize = 100; %seems to be fastest batchsize
         Lambda = 1e-2; % a larger Lambda seems necessary for larger batch sizes  
-        [W_outputs,P] = RLS_ELM(A,Y,M,Lambda,BatchSize,NumClasses,k_train);
-        
+        [W_outputs,P] = RLS_ELM(A,Y,M,Lambda,BatchSize,NumClasses,k_train);  
     case 'Modular'
         %Incrementally solve for the output weights using multiple batches of hidden units, i.e. modules.
-        
         ModuleSize = 400;
         ProgressFlag =0;
         W_outputs = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag);
     case 'e-NLMS'
-        %solve approximately using normalised LMS algorithm, without requiring an M x M matrix
-        
+        %solve approximately using regularised normalised LMS algorithm, without requiring an M x M matrix
         BatchSize = 100; 
         Lambda = 1; 
         Delta = 0.1;
