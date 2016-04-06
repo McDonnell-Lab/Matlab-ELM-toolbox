@@ -45,7 +45,7 @@ M=1600;  %number of hidden units
 HiddenUnitType = 'Relu'; %options: 'Relu', 'Sigmoid', 'Quadratic', 'Tanh', 'Relu','Cubic','SignedQuadratic'
 
 %parameters for output weights: there are different choices of optimisation method
-LearningMethod = 'RLS' %options: 'SingleBatchRidgeRegression', 'ConjGrad', 'Modular', 'RLS'
+LearningMethod = 'SingleBatchRidgeRegression' %options: 'SingleBatchRidgeRegression', 'ConjGrad', 'Modular', 'RLS', 'e-NLMS'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 2: get input layer weights
@@ -92,7 +92,14 @@ switch LearningMethod
         ModuleSize = 400;
         ProgressFlag =0;
         W_outputs = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag);
- 
+    case 'e-NLMS'
+        %solve approximately using normalised LMS algorithm, without requiring an M x M matrix
+        
+        BatchSize = 100; 
+        Lambda = 1; 
+        Delta = 0.1;
+        Runs = 4;
+        W_outputs = E_NLMS_ELM(A,Y,M,Lambda,BatchSize,NumClasses,k_train,Delta,Runs);
     otherwise
         disp('No method selected')
         return
