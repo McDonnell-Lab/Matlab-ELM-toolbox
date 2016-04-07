@@ -51,11 +51,11 @@ RF_Border = 3; %used only if InputWeightFlags(1) == 1
 Scaling = 2;
 
 %parameters for hidden units
-M=1600;  %number of hidden units
+M=3200;  %number of hidden units
 HiddenUnitType = 'Relu'; %options: 'Relu', 'Sigmoid', 'Quadratic', 'Tanh', 'Relu','Cubic','SignedQuadratic'
 
 %parameters for output weights: there are different choices of optimisation method
-LearningMethod = 'SingleBatchRidgeRegression' %options: 'SingleBatchRidgeRegression', 'ConjGrad', 'Modular', 'RLS', 'e-NLMS'
+LearningMethod = 'SingleBatchRidgeRegression' %options: 'SingleBatchRidgeRegression', 'ConjGrad', 'Modular', 'RLS', 'e-NLMS','BigData'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 2: get input layer weights
@@ -84,6 +84,10 @@ switch LearningMethod
         %Another method is to use SVD, but this is much slower, so we don't use that
         Lambda = 1e-2; %ridge regression/weight decay regularisation parameter
         W_outputs = (A*Y)'/(A*A'+Lambda*eye(M));
+    case 'BigData'
+        Lambda = 1e-2;
+        BatchSize = 10000;
+        [W_outputs] = BigData_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train);
     case 'ConjGrad'
         %The conjugate gradient method.
         MaxIterations = 100;
@@ -97,10 +101,11 @@ switch LearningMethod
         [W_outputs,P] = RLS_ELM(A,Y,M,Lambda,BatchSize,NumClasses,k_train);  
     case 'Modular'
         %Incrementally solve for the output weights using multiple batches of hidden units, i.e. modules.
-        ModuleSize = 400;
-        ProgressFlag =0;
+        ModuleSize = 800;
+        ProgressFlag =1;
         Lambda = 1e-2;
-        [W_outputs,Y_predicted_train,Y_predicted_test] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag);
+        StoppingValue = 1e-6;
+        [W_outputs,Y_predicted_train,Y_predicted_test] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag,StoppingValue);
     case 'e-NLMS'
         %solve approximately using regularised normalised LMS algorithm, without requiring an M x M matrix
         BatchSize = 100; 
