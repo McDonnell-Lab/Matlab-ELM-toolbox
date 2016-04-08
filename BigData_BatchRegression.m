@@ -1,4 +1,4 @@
-function [W_outputs] = BigData_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train)
+function [W_outputs] = BigData_BatchRegression(A,Y,M,Lambda, BatchSize,NumClasses,k_train)
 %
 %This code is useful if its not possible to store all the data in memory at a single time.
 %Users can adapt this code so that only batches of data are loaded into

@@ -1,4 +1,4 @@
-function [W_outputs] = ConjGrad_ELM(A,A_test,NumClasses,k_train,k_test,Y,labels,labels_test,Lambda,M,MaxIts,ProgressFlag)
+function [W_outputs] = ConjGrad_NormalEquations(A,A_test,NumClasses,k_train,k_test,Y,labels,labels_test,Lambda,M,MaxIts,ProgressFlag)
 
 %See M. Hestenes and E. Stiefel (1952). "Methods of Conjugate Gradients for Solving Linear Systems".
 %Journal of Research of the National Bureau of Standards 49 (6).

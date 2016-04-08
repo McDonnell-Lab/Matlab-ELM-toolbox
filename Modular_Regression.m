@@ -1,4 +1,4 @@
-function [W_outputs,Y_predicted,Y_predicted_test] = Modular_ELM(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag,StoppingValue)
+function [W_outputs,Y_predicted,Y_predicted_test] = Modular_Regression(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag,StoppingValue)
 %
 % This function calculates an approximate incremental solution to the output weights.
 %

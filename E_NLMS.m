@@ -1,4 +1,4 @@
-function [W_outputs] = E_NLMS_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train,Delta,Runs)
+function [W_outputs] = E_NLMS(A,Y,M,Lambda, BatchSize,NumClasses,k_train,Delta,Runs)
 
 %The normalised variation of the LMS algorithm, invented by Widrow.
 %See for example D. P. Mandic, S. Kanna and A. G. Constantinides,
@@ -12,7 +12,6 @@ function [W_outputs] = E_NLMS_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train,Del
 %called "OPIUM light".
 
 W_outputs = zeros(NumClasses,M);
-
 for rr = 1:Runs
     for kk = 1:floor(k_train/BatchSize)
         

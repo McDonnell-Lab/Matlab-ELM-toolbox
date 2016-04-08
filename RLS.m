@@ -1,4 +1,4 @@
-function [W_outputs,P] = RLS_ELM(A,Y,M,Lambda, BatchSize,NumClasses,k_train)
+function [W_outputs,P] = RLS(A,Y,M,Lambda, BatchSize,NumClasses,k_train)
 %
 % The Recursive Least Squares equations for a single sample update have been attributed to Gauss.
 % In 1950 they were rediscovered in R.L.Plackett, Some Theorems in Least Squares, Biometrika, 1950, 37, 149-157

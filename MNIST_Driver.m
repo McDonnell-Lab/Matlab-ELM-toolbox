@@ -66,11 +66,11 @@ RF_Border = 3; %used only if InputWeightFlags(1) == 1
 Scaling = 2;
 
 %parameters for hidden units
-M=800;  %number of hidden units
+M=200;  %number of hidden units
 HiddenUnitType = 'Relu'; %options: 'Relu', 'Sigmoid', 'Quadratic', 'Tanh', 'Relu','Cubic','SignedQuadratic'
 
 %parameters for output weights: there are different choices of optimisation method
-LearningMethod = 'BigData' %options: 'SingleBatchRidgeRegression', 'ConjGrad', 'Modular', 'RLS', 'e-NLMS','BigData'
+LearningMethod = 'e-NLMS' %options: 'SingleBatchRidgeRegression', 'ConjGrad', 'Modular', 'RLS', 'e-NLMS','BigData'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step 2: get input layer weights
@@ -126,7 +126,7 @@ switch LearningMethod
         BatchSize = 100; 
         Lambda = 1; 
         Delta = 0.1;
-        Runs = 4;
+        Runs = 5;
         W_outputs = E_NLMS(A,Y,M,Lambda,BatchSize,NumClasses,k_train,Delta,Runs);
     otherwise
         disp('No method selected')
