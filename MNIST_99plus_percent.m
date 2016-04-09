@@ -35,5 +35,5 @@ Scaling = 2;
 StoppingValue = 1e-4;
 
 tic;W_input = GetInputLayerWeights(InputWeightFlags,L,ImageSize,X,Y,k_train,labels,NumClasses,M,MinMaskSize,RF_Border,Scaling);toc
-[W_outputs,Y_predicted_train,Y_predicted_test] = Modular(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag,StoppingValue);
+[W_outputs,Y_predicted_train,Y_predicted_test] = Modular_regression(X,X_test,NumClasses,k_train,k_test,HiddenUnitType,W_input,Y,labels,labels_test,Lambda,M,ModuleSize,ProgressFlag,StoppingValue);
 
